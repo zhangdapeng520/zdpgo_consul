@@ -1,4 +1,4 @@
-module zgo_consul
+module github.com/zhangdapeng520/zdpgo_consul
 
 go 1.16
 
@@ -10,5 +10,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
+	github.com/zhangdapeng520/zdpgo_log v1.2.0
 	google.golang.org/grpc v1.42.0
 )

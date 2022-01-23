@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/consul/api"
+	"github.com/zhangdapeng520/zdpgo_consul/resolver/backoff"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/resolver"
-	"zgo_consul/resolver/backoff"
 )
 
 // init function needs for  auto-register in resolvers registry

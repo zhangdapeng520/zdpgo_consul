@@ -1,4 +1,4 @@
-package zgo_consul
+package zdpgo_consul
 
 import (
 	"fmt"
@@ -6,53 +6,62 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
-// 获取consul客户端
-func GetConsulClient(consulHost string, consulPort int) *api.Client {
+// Client 获取consul客户端
+func (c *Consul) Client() *api.Client {
+	// 使用默认的配置
 	cfg := api.DefaultConfig()
-	cfg.Address = fmt.Sprintf("%s:%d", consulHost, consulPort)
+
+	// consul的地址
+	cfg.Address = fmt.Sprintf("%s:%d", c.config.Host, c.config.Port)
+
+	// 创建consul客户端
 	client, err := api.NewClient(cfg)
 	if err != nil {
-		panic(err)
+		c.log.Error("获取consul客户端失败：", err)
 	}
+
+	// 返回Consul客户端
 	return client
 }
 
-// 注册Grpc微服务到consul
-func RegisterGrpc(
-	client *api.Client, // consul端口号
-	grpcHost string, // grpc地址
-	grpcPort int, // grpc端口号
-	grpcName string, // grpc名称
-	grpcId string, // grpc ID
-	grpcTags []string, // grpc 标签列表
-) {
+// Register 注册Grpc微服务到consul
+// @param host 地址
+// @param port 端口号
+// @param name 名称
+// @param id ID
+// @param tags 标签列表
+// @param isGrpc 是否为grpc
+func (c *Consul) Register(config ServiceConfig) {
 	//生成对应的检查对象
+	addr := fmt.Sprintf("%s:%d", config.Host, config.Port)
 	check := &api.AgentServiceCheck{
-		GRPC:                           fmt.Sprintf("%s:%d", grpcHost, grpcPort),
 		Timeout:                        "5s",
 		Interval:                       "5s",
 		DeregisterCriticalServiceAfter: "15s",
+		GRPC:                           addr,
 	}
 
 	// 生成注册对象
 	registration := new(api.AgentServiceRegistration)
-	registration.Name = grpcName
-	registration.ID = grpcId
-	registration.Port = grpcPort
-	registration.Tags = grpcTags
-	registration.Address = grpcHost
+	registration.Name = config.Name
+	registration.ID = config.Id
+	registration.Port = int(config.Port)
+	registration.Tags = config.Tags
+	registration.Address = config.Host
 	registration.Check = check
 
 	// 注册服务
-	err := client.Agent().ServiceRegister(registration)
+	err := c.client.Agent().ServiceRegister(registration)
 	if err != nil {
-		panic(err)
+		c.log.Error("注册服务到consul失败：", err)
 	}
 }
 
-// 从consul注销grpc服务
-func DeRegister(client *api.Client, grpcId string) {
-	if err := client.Agent().ServiceDeregister(grpcId); err != nil {
-		panic(err)
+// DeRegister 从consul注销grpc服务
+func (c *Consul) DeRegister(id string) error {
+	if err := c.client.Agent().ServiceDeregister(id); err != nil {
+		c.log.Error("从consul注销grpc服务失败：", err)
+		return err
 	}
+	return nil
 }
