@@ -2,13 +2,13 @@ package zdpgo_consul
 
 import (
 	"github.com/hashicorp/consul/api"
-	"github.com/zhangdapeng520/zdpgo_log"
+	"github.com/zhangdapeng520/zdpgo_zap"
 )
 
 // Consul consul核心对象
 type Consul struct {
 	config *ConsulConfig  // 配置对象
-	log    *zdpgo_log.Log // 日志对象
+	log    *zdpgo_zap.Zap // 日志对象
 	client *api.Client    // consul客户端对象
 }
 
@@ -21,11 +21,12 @@ func New(config ConsulConfig) *Consul {
 	if config.LogFilePath == "" {
 		config.LogFilePath = "zdpgo_consul.log"
 	}
-	logConfig := zdpgo_log.LogConfig{
-		Debug: config.Debug,
-		Path:  config.LogFilePath,
-	}
-	l := zdpgo_log.New(logConfig)
+	l := zdpgo_zap.New(zdpgo_zap.ZapConfig{
+		Debug:        config.Debug,
+		OpenGlobal:   true,
+		OpenFileName: true,
+		LogFilePath:  config.LogFilePath,
+	})
 	c.log = l
 
 	// 校验参数

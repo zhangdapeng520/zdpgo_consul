@@ -11,8 +11,8 @@ func TestConsul_Register(t *testing.T) {
 		Host:  "127.0.0.1",
 		Port:  8500,
 	})
-	
-	c.Register(ServiceConfig{
+
+	c.RegisterGrpc(ServiceConfig{
 		Host: "192.168.33.14",
 		Port: 8888,
 		Name: "test",
@@ -28,6 +28,6 @@ func TestConsul_DeRegister(t *testing.T) {
 		Host:  "127.0.0.1",
 		Port:  8500,
 	})
-	
-	c.DeRegister("test")
+
+	c.DeRegisterGrpc("test")
 }

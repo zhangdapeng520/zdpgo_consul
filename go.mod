@@ -10,6 +10,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
-	github.com/zhangdapeng520/zdpgo_log v1.2.0
+	github.com/zhangdapeng520/zdpgo_zap v0.1.0
 	google.golang.org/grpc v1.42.0
 )
+
+replace github.com/zhangdapeng520/zdpgo_zap v0.1.0 => ../zdpgo_zap
