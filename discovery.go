@@ -11,8 +11,10 @@ import (
 // @param serviceName，consul中的grpc服务名称
 func (c *Consul) GetGrpcClientConn(serviceName string) *grpc.ClientConn {
 	// 使用负载均衡的方式获取grpc客户端
+	addr := fmt.Sprintf("consul://%s:%d/%s?wait=14s", c.config.Host, c.config.Port, serviceName)
+	c.log.Info("GetGrpcClientConn的add地址", "addr", addr)
 	conn, err := grpc.Dial(
-		fmt.Sprintf("consul://%s:%d/%s?wait=14s", c.config.Host, c.config.Port, serviceName),
+		addr,
 		grpc.WithInsecure(),
 		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
 	)

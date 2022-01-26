@@ -16,3 +16,12 @@ type ServiceConfig struct {
 	Id   string   // ID
 	Tags []string // 标签列表
 }
+
+// WebConfig web服务配置对象
+type WebConfig struct {
+	Host string   // 地址
+	Port uint16   // 端口号
+	Name string   // 名称
+	Id   string   // ID
+	Tags []string // 标签列表
+}
