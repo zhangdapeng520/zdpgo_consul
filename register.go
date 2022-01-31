@@ -55,6 +55,7 @@ func (c *Consul) RegisterGrpc(config ServiceConfig) {
 	if err != nil {
 		c.log.Error("注册服务到consul失败：", err)
 	}
+	c.log.Info("注册服务到consul成功")
 }
 
 // DeRegisterGrpc 从consul注销grpc服务
@@ -103,10 +104,10 @@ func (c *Consul) RegisterHTTP(config WebConfig) error {
 }
 
 // DeRegisterHTTP 注销HTTP服务
-func (c *Consul) DeRegisterHTTP(config WebConfig) error {
+func (c *Consul) DeRegisterHTTP(config DeregisterHTTPConfig) error {
 	// 创建配置
 	cfg := api.DefaultConfig()
-	cfg.Address = fmt.Sprintf("%s:%d", config.Host, config.Port)
+	cfg.Address = fmt.Sprintf("%s:%d", config.ConsulHost, config.ConsulPort)
 
 	// 创建consul客户端
 	client, err := api.NewClient(cfg)
@@ -116,7 +117,7 @@ func (c *Consul) DeRegisterHTTP(config WebConfig) error {
 	}
 
 	// 注销服务
-	err = client.Agent().ServiceDeregister(config.Id)
+	err = client.Agent().ServiceDeregister(config.ServerId)
 	if err != nil {
 		c.log.Error("注销HTTP服务失败", "error", err.Error())
 	}

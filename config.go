@@ -25,3 +25,10 @@ type WebConfig struct {
 	Id   string   // ID
 	Tags []string // 标签列表
 }
+
+// DeregisterHTTPConfig 注销http服务的配置
+type DeregisterHTTPConfig struct {
+	ConsulHost string // consul主机地址
+	ConsulPort uint16 // consul端口号
+	ServerId   string // 服务id
+}
