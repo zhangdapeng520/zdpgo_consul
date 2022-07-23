@@ -9,19 +9,18 @@ import (
 
 // GetGrpcClientConn 获取GRPC的客户端连接
 // @param serviceName，consul中的grpc服务名称
-func (c *Consul) GetGrpcClientConn(serviceName string) *grpc.ClientConn {
+func (c *Consul) GetGrpcClientConn(serviceName string) (*grpc.ClientConn, error) {
 	// 使用负载均衡的方式获取grpc客户端
 	addr := fmt.Sprintf("consul://%s:%d/%s?wait=14s", c.config.Host, c.config.Port, serviceName)
-	c.log.Info("GetGrpcClientConn的add地址", "addr", addr)
 	conn, err := grpc.Dial(
 		addr,
 		grpc.WithInsecure(),
 		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
 	)
 	if err != nil {
-		c.log.Error("使用负载均衡的方式获取grpc客户端失败：", err)
+		return nil, err
 	}
 
 	// 返回grpc客户端
-	return conn
+	return conn, nil
 }

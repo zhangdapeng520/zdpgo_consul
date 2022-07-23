@@ -7,7 +7,7 @@ import (
 )
 
 // Client 获取consul客户端
-func (c *Consul) Client() *api.Client {
+func (c *Consul) Client() (*api.Client, error) {
 	// 使用默认的配置
 	cfg := api.DefaultConfig()
 
@@ -17,11 +17,11 @@ func (c *Consul) Client() *api.Client {
 	// 创建consul客户端
 	client, err := api.NewClient(cfg)
 	if err != nil {
-		c.log.Error("获取consul客户端失败：", err)
+		return nil, err
 	}
 
 	// 返回Consul客户端
-	return client
+	return client, nil
 }
 
 // RegisterGrpc 注册Grpc微服务到consul
@@ -31,7 +31,7 @@ func (c *Consul) Client() *api.Client {
 // @param id ID
 // @param tags 标签列表
 // @param isGrpc 是否为grpc
-func (c *Consul) RegisterGrpc(config ServiceConfig) {
+func (c *Consul) RegisterGrpc(config ServiceConfig) error {
 	//生成对应的检查对象
 	addr := fmt.Sprintf("%s:%d", config.Host, config.Port)
 	check := &api.AgentServiceCheck{
@@ -52,16 +52,12 @@ func (c *Consul) RegisterGrpc(config ServiceConfig) {
 
 	// 注册服务
 	err := c.client.Agent().ServiceRegister(registration)
-	if err != nil {
-		c.log.Error("注册服务到consul失败：", err)
-	}
-	c.log.Info("注册服务到consul成功")
+	return err
 }
 
 // DeRegisterGrpc 从consul注销grpc服务
 func (c *Consul) DeRegisterGrpc(id string) error {
 	if err := c.client.Agent().ServiceDeregister(id); err != nil {
-		c.log.Error("从consul注销grpc服务失败：", err)
 		return err
 	}
 	return nil
@@ -74,12 +70,11 @@ func (c *Consul) RegisterHTTP(config WebConfig) error {
 
 	client, err := api.NewClient(cfg)
 	if err != nil {
-		c.log.Error("注册http服务失败", err)
+		return err
 	}
 
 	// 生成对应的检查对象
 	addr := fmt.Sprintf("http://%s:%d/health", config.Host, config.Port)
-	c.log.Info("健康检查地址", "address", addr)
 	check := &api.AgentServiceCheck{
 		HTTP:                           addr,
 		Timeout:                        "5s",
@@ -97,10 +92,7 @@ func (c *Consul) RegisterHTTP(config WebConfig) error {
 	registration.Check = check
 
 	err = client.Agent().ServiceRegister(registration)
-	if err != nil {
-		panic(err)
-	}
-	return nil
+	return err
 }
 
 // DeRegisterHTTP 注销HTTP服务
@@ -112,14 +104,10 @@ func (c *Consul) DeRegisterHTTP(config DeregisterHTTPConfig) error {
 	// 创建consul客户端
 	client, err := api.NewClient(cfg)
 	if err != nil {
-		c.log.Error("创建consul客户端失败", "error", err.Error())
 		return err
 	}
 
 	// 注销服务
 	err = client.Agent().ServiceDeregister(config.ServerId)
-	if err != nil {
-		c.log.Error("注销HTTP服务失败", "error", err.Error())
-	}
 	return err
 }
