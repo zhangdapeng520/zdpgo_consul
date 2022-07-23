@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/hashicorp/consul/api"
+	"github.com/zhangdapeng520/zdpgo_consul/api"
 	"github.com/zhangdapeng520/zdpgo_consul/resolver/backoff"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/resolver"

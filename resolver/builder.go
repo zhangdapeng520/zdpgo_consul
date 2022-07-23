@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/hashicorp/consul/api"
 	"github.com/pkg/errors"
+	"github.com/zhangdapeng520/zdpgo_consul/api"
 	"google.golang.org/grpc/resolver"
 )
 

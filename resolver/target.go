@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/go-playground/form"
-	"github.com/hashicorp/consul/api"
 	"github.com/pkg/errors"
+	"github.com/zhangdapeng520/zdpgo_consul/api"
 )
 
 type target struct {

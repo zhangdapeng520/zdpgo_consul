@@ -3,7 +3,7 @@ package zdpgo_consul
 import (
 	"fmt"
 
-	"github.com/hashicorp/consul/api"
+	"github.com/zhangdapeng520/zdpgo_consul/api"
 )
 
 // Client 获取consul客户端

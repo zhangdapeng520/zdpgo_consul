@@ -1,7 +1,7 @@
 package zdpgo_consul
 
 import (
-	"github.com/hashicorp/consul/api"
+	"github.com/zhangdapeng520/zdpgo_consul/api"
 )
 
 // Consul consul核心对象

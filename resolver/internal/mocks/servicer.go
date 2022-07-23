@@ -6,7 +6,7 @@ package mocks
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	api "github.com/hashicorp/consul/api"
+	api "github.com/zhangdapeng520/zdpgo_consul/api"
 	reflect "reflect"
 )
 
