@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-playground/form"
 	"github.com/pkg/errors"
 	"github.com/zhangdapeng520/zdpgo_consul/api"
+	"github.com/zhangdapeng520/zdpgo_consul/form"
 )
 
 type target struct {
@@ -29,8 +29,6 @@ type target struct {
 	Dc                string        `form:"dc"`
 	AllowStale        bool          `form:"allow-stale"`
 	RequireConsistent bool          `form:"require-consistent"`
-	// TODO(mbobakov): custom parameters for the http-transport
-	// TODO(mbobakov): custom parameters for the TLS subsystem
 }
 
 func (t *target) String() string {

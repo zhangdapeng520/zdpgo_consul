@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/resolver"
 )
 
-// init function needs for  auto-register in resolvers registry
+// init 将解析器注册到gRPC的解析器
 func init() {
 	resolver.Register(&builder{})
 }

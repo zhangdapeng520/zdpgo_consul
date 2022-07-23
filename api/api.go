@@ -357,12 +357,7 @@ type TLSConfig struct {
 	InsecureSkipVerify bool
 }
 
-// DefaultConfig returns a default configuration for the client. By default this
-// will pool and reuse idle connections to Consul. If you have a long-lived
-// client object, this is the desired behavior and should make the most efficient
-// use of the connections to Consul. If you don't reuse a client object, which
-// is not recommended, then you may notice idle connections building up over
-// time. To avoid this, use the DefaultNonPooledConfig() instead.
+// DefaultConfig 用于生成客户端的默认配置
 func DefaultConfig() *Config {
 	return defaultConfig(nil, cleanhttp.DefaultPooledTransport)
 }
@@ -383,15 +378,8 @@ func DefaultNonPooledConfig() *Config {
 	return defaultConfig(nil, cleanhttp.DefaultTransport)
 }
 
-// defaultConfig returns the default configuration for the client, using the
-// given function to make the transport.
+// defaultConfig 默认配置
 func defaultConfig(logger hclog.Logger, transportFn func() *http.Transport) *Config {
-	if logger == nil {
-		logger = hclog.New(&hclog.LoggerOptions{
-			Name: "consul-api",
-		})
-	}
-
 	config := &Config{
 		Address:   "127.0.0.1:8500",
 		Scheme:    "http",
@@ -453,10 +441,7 @@ func defaultConfig(logger hclog.Logger, transportFn func() *http.Transport) *Con
 		config.TLSConfig.KeyFile = v
 	}
 	if v := os.Getenv(HTTPSSLVerifyEnvName); v != "" {
-		doVerify, err := strconv.ParseBool(v)
-		if err != nil {
-			logger.Warn(fmt.Sprintf("could not parse %s", HTTPSSLVerifyEnvName), "error", err)
-		}
+		doVerify, _ := strconv.ParseBool(v)
 		if !doVerify {
 			config.TLSConfig.InsecureSkipVerify = true
 		}
@@ -469,8 +454,7 @@ func defaultConfig(logger hclog.Logger, transportFn func() *http.Transport) *Con
 	return config
 }
 
-// TLSConfig is used to generate a TLSClientConfig that's useful for talking to
-// Consul using TLS.
+// SetupTLSConfig TLS配置
 func SetupTLSConfig(tlsConfig *TLSConfig) (*tls.Config, error) {
 	tlsClientConfig := &tls.Config{
 		InsecureSkipVerify: tlsConfig.InsecureSkipVerify,
@@ -547,16 +531,14 @@ func (c *Config) GenerateEnv() []string {
 	return env
 }
 
-// Client provides a client to the Consul API
+// Client consul的客户端
 type Client struct {
 	modifyLock sync.RWMutex
 	headers    http.Header
-
-	config Config
+	config     Config
 }
 
-// Headers gets the current set of headers used for requests. This returns a
-// copy; to modify it call AddHeader or SetHeaders.
+// Headers 获取请求头
 func (c *Client) Headers() http.Header {
 	c.modifyLock.RLock()
 	defer c.modifyLock.RUnlock()
@@ -575,25 +557,23 @@ func (c *Client) Headers() http.Header {
 	return ret
 }
 
-// AddHeader allows a single header key/value pair to be added
-// in a race-safe fashion.
+// AddHeader 添加请求头
 func (c *Client) AddHeader(key, value string) {
 	c.modifyLock.Lock()
 	defer c.modifyLock.Unlock()
 	c.headers.Add(key, value)
 }
 
-// SetHeaders clears all previous headers and uses only the given
-// ones going forward.
+// SetHeaders 设置请求头
 func (c *Client) SetHeaders(headers http.Header) {
 	c.modifyLock.Lock()
 	defer c.modifyLock.Unlock()
 	c.headers = headers
 }
 
-// NewClient returns a new client
+// NewClient 创建一个客户端
 func NewClient(config *Config) (*Client, error) {
-	// bootstrap the config
+	// 默认的配置
 	defConfig := DefaultConfig()
 
 	if config.Address == "" {
@@ -683,21 +663,11 @@ func NewClient(config *Config) (*Client, error) {
 	return &Client{config: *config, headers: make(http.Header)}, nil
 }
 
-// NewHttpClient returns an http client configured with the given Transport and TLS
-// config.
+// NewHttpClient 新建HTTP客户端
 func NewHttpClient(transport *http.Transport, tlsConf TLSConfig) (*http.Client, error) {
 	client := &http.Client{
 		Transport: transport,
 	}
-
-	// TODO (slackpad) - Once we get some run time on the HTTP/2 support we
-	// should turn it on by default if TLS is enabled. We would basically
-	// just need to call http2.ConfigureTransport(transport) here. We also
-	// don't want to introduce another external dependency on
-	// golang.org/x/net/http2 at this time. For a complete recipe for how
-	// to enable HTTP/2 support on a transport suitable for the API client
-	// library see agent/http_test.go:TestHTTPServer_H2.
-
 	if transport.TLSClientConfig == nil {
 		tlsClientConfig, err := SetupTLSConfig(&tlsConf)
 
@@ -711,7 +681,7 @@ func NewHttpClient(transport *http.Transport, tlsConf TLSConfig) (*http.Client, 
 	return client, nil
 }
 
-// request is used to help build up a request
+// request 请求对象
 type request struct {
 	config *Config
 	method string
@@ -723,8 +693,7 @@ type request struct {
 	ctx    context.Context
 }
 
-// setQueryOptions is used to annotate the request with
-// additional query options
+// setQueryOptions 设置请求参数
 func (r *request) setQueryOptions(q *QueryOptions) {
 	if q == nil {
 		return
@@ -815,13 +784,9 @@ func IsRetryableError(err error) bool {
 	if err == nil {
 		return false
 	}
-
 	if _, ok := err.(net.Error); ok {
 		return true
 	}
-
-	// TODO (slackpad) - Make a real error type here instead of using
-	// a string check.
 	return strings.Contains(err.Error(), serverError)
 }
 

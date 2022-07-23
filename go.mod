@@ -3,7 +3,6 @@ module github.com/zhangdapeng520/zdpgo_consul
 go 1.18
 
 require (
-	github.com/go-playground/form v3.1.4+incompatible
 	github.com/golang/mock v1.1.1
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-hclog v0.12.0
@@ -28,5 +27,4 @@ require (
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 )

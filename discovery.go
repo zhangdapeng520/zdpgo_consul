@@ -15,7 +15,7 @@ func (c *Consul) GetGrpcClientConn(serviceName string) (*grpc.ClientConn, error)
 	conn, err := grpc.Dial(
 		addr,
 		grpc.WithInsecure(),
-		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`), // 基于轮询的负载均衡
 	)
 	if err != nil {
 		return nil, err
