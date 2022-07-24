@@ -6,17 +6,23 @@ import (
 
 // Consul consul核心对象
 type Consul struct {
-	config *ConsulConfig // 配置对象
-	client *api.Client   // consul客户端对象
+	Config *Config     // 配置对象
+	client *api.Client // consul客户端对象
 }
 
 // New 创建consul的实例
 // @param config consul配置对象
-func New(config ConsulConfig) (*Consul, error) {
+func New(config *Config) (*Consul, error) {
 	c := Consul{}
 
 	// 初始化配置
-	c.config = &config
+	if config.Host == "" {
+		config.Host = "127.0.0.1"
+	}
+	if config.Port == 0 {
+		config.Port = 8500
+	}
+	c.Config = config
 
 	// 初始化客户端
 	var err error

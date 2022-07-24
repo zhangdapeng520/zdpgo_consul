@@ -12,7 +12,7 @@ func (c *Consul) Client() (*api.Client, error) {
 	cfg := api.DefaultConfig()
 
 	// consul的地址
-	cfg.Address = fmt.Sprintf("%s:%d", c.config.Host, c.config.Port)
+	cfg.Address = fmt.Sprintf("%s:%d", c.Config.Host, c.Config.Port)
 
 	// 创建consul客户端
 	client, err := api.NewClient(cfg)
@@ -55,18 +55,10 @@ func (c *Consul) RegisterGrpc(config ServiceConfig) error {
 	return err
 }
 
-// DeRegisterGrpc 从consul注销grpc服务
-func (c *Consul) DeRegisterGrpc(id string) error {
-	if err := c.client.Agent().ServiceDeregister(id); err != nil {
-		return err
-	}
-	return nil
-}
-
 // RegisterHTTP 注册HTTP服务
 func (c *Consul) RegisterHTTP(config WebConfig) error {
 	cfg := api.DefaultConfig()
-	cfg.Address = fmt.Sprintf("%s:%d", c.config.Host, c.config.Port)
+	cfg.Address = fmt.Sprintf("%s:%d", c.Config.Host, c.Config.Port)
 
 	client, err := api.NewClient(cfg)
 	if err != nil {
@@ -74,9 +66,8 @@ func (c *Consul) RegisterHTTP(config WebConfig) error {
 	}
 
 	// 生成对应的检查对象
-	addr := fmt.Sprintf("http://%s:%d/health", config.Host, config.Port)
 	check := &api.AgentServiceCheck{
-		HTTP:                           addr,
+		HTTP:                           config.HealthUrl,
 		Timeout:                        "5s",
 		Interval:                       "5s",
 		DeregisterCriticalServiceAfter: "10s",
@@ -95,19 +86,7 @@ func (c *Consul) RegisterHTTP(config WebConfig) error {
 	return err
 }
 
-// DeRegisterHTTP 注销HTTP服务
-func (c *Consul) DeRegisterHTTP(config DeregisterHTTPConfig) error {
-	// 创建配置
-	cfg := api.DefaultConfig()
-	cfg.Address = fmt.Sprintf("%s:%d", config.ConsulHost, config.ConsulPort)
-
-	// 创建consul客户端
-	client, err := api.NewClient(cfg)
-	if err != nil {
-		return err
-	}
-
-	// 注销服务
-	err = client.Agent().ServiceDeregister(config.ServerId)
-	return err
+// DeRegister 注销服务
+func (c *Consul) DeRegister(serviceId string) error {
+	return c.client.Agent().ServiceDeregister(serviceId)
 }
